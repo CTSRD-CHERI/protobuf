@@ -70,15 +70,19 @@ class InternalMetadata {
     GOOGLE_DCHECK(!is_message_owned || arena != nullptr);
   }
 
-#if defined(NDEBUG) || defined(_MSC_VER)
+  // To keep the ABI identical between debug and non-debug builds,
+  // the destructor is always defined here even though it may delegate
+  // to a non-inline private method.
+  // (see https://github.com/protocolbuffers/protobuf/issues/9947)
   ~InternalMetadata() {
+#if defined(NDEBUG) || defined(_MSC_VER)
     if (HasMessageOwnedArenaTag()) {
       delete reinterpret_cast<Arena*>(ptr_ - kMessageOwnedArenaTagMask);
     }
-  }
 #else
-  ~InternalMetadata();
+    CheckedDestruct();
 #endif
+  }
 
   template <typename T>
   void Delete() {
@@ -269,6 +273,9 @@ class InternalMetadata {
   PROTOBUF_NOINLINE void DoSwap(T* other) {
     mutable_unknown_fields<T>()->Swap(other);
   }
+
+  // Private helper with debug checks for ~InternalMetadata()
+  void CheckedDestruct();
 };
 
 // String Template specializations.
