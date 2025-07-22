@@ -635,7 +635,11 @@ const char* ReadTagInlined(const char* ptr, uint32_t* out) {
           // Note: this asm statement prevents the compiler from
           // trying to share the "return ptr + constant" among all
           // branches.
+#if defined(__CHERI_PURE_CAPABILITY__)
+          asm("" : "+C"(ptr));
+#else
           asm("" : "+r"(ptr));
+#endif
 #endif
           return ptr + 5;
         }
