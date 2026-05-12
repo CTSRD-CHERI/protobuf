@@ -95,6 +95,7 @@
 
 #include <assert.h>
 #include <setjmp.h>
+#include <stdalign.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -179,7 +180,7 @@ Error, UINTPTR_MAX is undefined
 #define UPB_MALLOC_ALIGN 16
 #else
 #define UPB_HWASAN 0
-#define UPB_MALLOC_ALIGN 8
+#define UPB_MALLOC_ALIGN alignof(max_align_t)
 #endif
 
 #if UPB_HAS_FEATURE(thread_sanitizer) || defined(__SANITIZE_THREAD__)
