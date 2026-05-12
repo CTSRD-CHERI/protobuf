@@ -52,7 +52,7 @@ UPB_NODISCARD UPB_API upb_Message* upb_Message_New(const upb_MiniTable* m,
 #define kUpb_Message_ExtensionBegin 0
 
 UPB_INLINE bool upb_Message_NextUnknown(const upb_Message* msg,
-                                        upb_StringView* data, uintptr_t* iter);
+                                        upb_StringView* data, size_t* iter);
 
 UPB_INLINE bool upb_Message_HasUnknown(const upb_Message* msg);
 
@@ -88,7 +88,7 @@ typedef enum upb_Message_DeleteUnknownStatus {
   kUpb_DeleteUnknown_AllocFail,
 } upb_Message_DeleteUnknownStatus;
 UPB_NODISCARD upb_Message_DeleteUnknownStatus upb_Message_DeleteUnknown(
-    upb_Message* msg, upb_StringView* data, uintptr_t* iter, upb_Arena* arena);
+    upb_Message* msg, upb_StringView* data, size_t* iter, upb_Arena* arena);
 
 // Returns the number of extensions present in this message.
 size_t upb_Message_ExtensionCount(const upb_Message* msg);
@@ -97,12 +97,12 @@ size_t upb_Message_ExtensionCount(const upb_Message* msg);
 UPB_INLINE bool upb_Message_NextExtension(const upb_Message* msg,
                                           const upb_MiniTableExtension** out_e,
                                           upb_MessageValue* out_v,
-                                          uintptr_t* iter);
+                                          size_t* iter);
 
 // Iterates extensions in reverse wire order
 UPB_INLINE bool UPB_PRIVATE(_upb_Message_NextExtensionReverse)(
     const struct upb_Message* msg, const upb_MiniTableExtension** out_e,
-    upb_MessageValue* out_v, uintptr_t* iter);
+    upb_MessageValue* out_v, size_t* iter);
 
 // Mark a message and all of its descendents as frozen/immutable.
 UPB_API void upb_Message_Freeze(upb_Message* msg, const upb_MiniTable* m);
