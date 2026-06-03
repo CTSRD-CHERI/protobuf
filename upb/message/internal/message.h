@@ -185,6 +185,32 @@ UPB_FORCEINLINE void _upb_Message_AlignedMemsetZero(void* dst, size_t size) {
 #endif
   char* ptr = (char*)dst;
   char* end = ptr + size;
+#if defined(__CHERI_PURE_CAPABILITY__)
+  __asm__(
+      // Unconditionally zero the first 8 byte chunk; if the loop runs this is
+      // wasted work, but doing it unconditionally is cheaper than adding
+      // another branch.
+      "str xzr, [%[ptr]]\n\t"
+
+      // If size == 8, skip the loop.
+      "cmp %x[count], #8\n\t"
+      "b.eq 2f\n\t"
+
+      // Loop for size >= 16.
+      // In each iteration, we zero 16 bytes from the ptr and 16 bytes from the
+      // end. These regions may overlap, which is OK; doing it this way lets us
+      // process two chunks per loop iteration.
+      "1:\n\t"
+      "stp xzr, xzr, [%[ptr]], #16\n\t"    // Store then increment by 16
+      "stp xzr, xzr, [%[end], #-16]!\n\t"  // Decrement by 16 then store
+      // End the loop when pointers cross or meet.
+      "cmp %[ptr], %[end]\n\t"
+      "b.lo 1b\n\t"
+      "2:\n\t"
+      : [ptr] "+&r"(ptr), [end] "+&r"(end), "=m"(*(char (*)[])dst)
+      : [count] "r"(size)
+      : "cc");
+#else
   __asm__(
       // Unconditionally zero the first 8 byte chunk; if the loop runs this is
       // wasted work, but doing it unconditionally is cheaper than adding
@@ -209,6 +235,7 @@ UPB_FORCEINLINE void _upb_Message_AlignedMemsetZero(void* dst, size_t size) {
       : [ptr] "+&r"(ptr), [end] "+&r"(end), "=m"(*(char (*)[])dst)
       : [count] "r"(size)
       : "cc");
+#endif
   UPB_PRIVATE(upb_Xsan_MarkInitialized)(dst, size);
 #else
   memset(dst, 0, size);
