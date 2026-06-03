@@ -162,7 +162,8 @@ UPB_NOINLINE static char* encode_longvarint(char* ptr, upb_encstate* e,
       UPB_PRIVATE(upb_WireWriter_VarintUnusedSizeFromLeadingZeros64)(clz);
 
   ptr += skip;
-  uint64_t addr, mask;
+  uintptr_t addr;
+  uint64_t mask;
   __asm__ volatile(
       // Formatter keeps merging short lines
       // clang-format off
