@@ -235,9 +235,13 @@ class SooRep {
 
   void swap(SooRep& other) {
     resolver_.SwapTags(other.resolver_);
+#if defined(__CHERI_PURE_CAPABILITY__)
+    std::swap(this->heap_rep_, other.heap_rep_);
+#else
     internal::memswap<sizeof(SooRep) - offsetof(SooRep, size_)>(
         reinterpret_cast<char*>(&this->size_),
         reinterpret_cast<char*>(&other.size_));
+#endif
   }
 
  private:
