@@ -553,7 +553,11 @@ static void upb_MtDecoder_ParseMessage(upb_MtDecoder* d, const char* data,
   // alignof(upb_MiniTableSubInternal) == 8.
   UPB_STATIC_ASSERT(UPB_ALIGN_OF(upb_MiniTableSubInternal) -
                             UPB_ALIGN_OF(upb_MiniTableField) <=
+#if defined(__CHERI_PURE_CAPABILITY__)
+                        12,
+#else
                         4,
+#endif
                     "alignment difference is too large");
   const size_t initial_bytes = bytes_per_field * len + 4;
   d->fields = upb_Arena_Malloc(d->arena, initial_bytes);
