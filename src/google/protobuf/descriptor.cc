@@ -10277,7 +10277,8 @@ void DescriptorBuilder::OptionInterpreter::UpdateSourceCodeInfo(
   // that need to be changed, there is zero copy overhead).
 
   RepeatedPtrField<SourceCodeInfo_Location>* locs = info->mutable_location();
-  RepeatedPtrField<SourceCodeInfo_Location> new_locs;
+  SourceCodeInfo new_src_code_info;
+  RepeatedPtrField<SourceCodeInfo_Location>* new_locs = new_src_code_info.mutable_location();
   bool copying = false;
 
   SourceCodePath pathv;
@@ -10317,7 +10318,7 @@ void DescriptorBuilder::OptionInterpreter::UpdateSourceCodeInfo(
     if (entry == interpreted_paths_.end()) {
       // not a match
       if (copying) {
-        *new_locs.Add() = *loc;
+        *new_locs->Add() = *loc;
       }
       continue;
     }
@@ -10327,16 +10328,16 @@ void DescriptorBuilder::OptionInterpreter::UpdateSourceCodeInfo(
     if (!copying) {
       // initialize the copy we are building
       copying = true;
-      new_locs.Reserve(locs->size());
+      new_locs->Reserve(locs->size());
       for (RepeatedPtrField<SourceCodeInfo_Location>::iterator it =
                locs->begin();
            it != loc; it++) {
-        *new_locs.Add() = *it;
+        *new_locs->Add() = *it;
       }
     }
 
     // add replacement and update its path
-    SourceCodeInfo_Location* replacement = new_locs.Add();
+    SourceCodeInfo_Location* replacement = new_locs->Add();
     *replacement = *loc;
     replacement->clear_path();
     for (SourceCodePath::iterator rit = entry->second.begin();
@@ -10347,7 +10348,7 @@ void DescriptorBuilder::OptionInterpreter::UpdateSourceCodeInfo(
 
   // if we made a changed copy, put it in place
   if (copying) {
-    *locs = std::move(new_locs);
+    *locs = std::move(*new_locs);
   }
 }
 
