@@ -1037,7 +1037,6 @@ class ABSL_ATTRIBUTE_WARN_UNUSED RepeatedPtrField final
 
 #ifndef PROTOBUF_FUTURE_REMOVE_REPEATED_PTR_FIELD_ARENA_CONSTRUCTOR
   // TODO: make constructor private
-  [[deprecated("Use Arena::Create<RepeatedPtrField<...>>(Arena*) instead")]]
   explicit RepeatedPtrField(Arena* arena);
 #endif
 

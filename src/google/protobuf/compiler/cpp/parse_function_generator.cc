@@ -484,7 +484,7 @@ void ParseFunctionGenerator::GenerateTailCallTable(io::Printer* p) {
         // FileDescriptorProto is safe from this.
         IsFileDescriptorProto(descriptor_->file(), options_)
             ? "constexpr"
-            : "PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1\nconst"},
+            : "PROTOBUF_CONSTINIT_WITH_PTR PROTOBUF_ATTRIBUTE_INIT_PRIORITY1\nconst"},
        {"table_size_log2", tc_table_info_->table_size_log2},
        {"ordered_size", ordered_fields_.size()},
        {"aux_size", tc_table_info_->aux_entries.size()},

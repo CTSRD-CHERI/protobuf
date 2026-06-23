@@ -23,7 +23,6 @@
 #include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
 #include "absl/strings/cord.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
 #include "google/protobuf/arena.h"
@@ -39,7 +38,6 @@
 #include "google/protobuf/repeated_field.h"
 #include "google/protobuf/repeated_ptr_field.h"
 #include "google/protobuf/wire_format_lite.h"
-#include "utf8_validity.h"
 
 
 // Must be included last.
@@ -193,7 +191,7 @@ class PROTOBUF_EXPORT EpsCopyInputStream {
       // However micro-benchmarks regress on string reading cases. So we copy
       // the same logic from the old CodedInputStream ReadString. Note: as of
       // Apr 2021, this is still a significant win over `assign()`.
-      absl::strings_internal::STLStringResizeUninitialized(s, size);
+      s->resize(size);
       char* z = &(*s)[0];
       memcpy(z, ptr, size);
       return ptr + size;

@@ -18,7 +18,6 @@
 
 #include "absl/log/absl_check.h"
 #include "absl/strings/cord.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/extension_set.h"
 #include "google/protobuf/generated_message_tctable_impl.h"
@@ -213,7 +212,7 @@ bool UnknownFieldSet::ParseFromArray(const void* data, int size) {
 bool UnknownFieldSet::SerializeToString(std::string* output) const {
   const size_t size =
       google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(*this);
-  absl::strings_internal::STLStringResizeUninitializedAmortized(output, size);
+  output->resize(size);
   google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
       *this, reinterpret_cast<uint8_t*>(const_cast<char*>(output->data())));
   return true;

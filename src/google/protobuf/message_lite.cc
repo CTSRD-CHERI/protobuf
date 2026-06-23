@@ -27,7 +27,6 @@
 #include "absl/log/absl_log.h"
 #include "absl/strings/cord.h"
 #include "absl/strings/cord_buffer.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
@@ -603,8 +602,7 @@ bool MessageLite::AppendPartialToString(std::string* output) const {
     return false;
   }
 
-  absl::strings_internal::STLStringResizeUninitializedAmortized(
-      output, old_size + byte_size);
+  output->resize(old_size + byte_size);
   uint8_t* start =
       reinterpret_cast<uint8_t*>(io::mutable_string_data(output) + old_size);
   SerializeToArrayImpl(*this, start, byte_size);

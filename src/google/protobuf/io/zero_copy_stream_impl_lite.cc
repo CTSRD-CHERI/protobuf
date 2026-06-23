@@ -24,7 +24,6 @@
 #include "absl/log/absl_check.h"
 #include "absl/strings/cord.h"
 #include "absl/strings/cord_buffer.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
 #include "google/protobuf/io/zero_copy_stream.h"
@@ -145,8 +144,7 @@ bool StringOutputStream::Next(void** data, int* size) {
   // Avoid integer overflow in returned '*size'.
   new_size = std::min(new_size, old_size + std::numeric_limits<int>::max());
   // Increase the size, also make sure that it is at least kMinimumSize.
-  absl::strings_internal::STLStringResizeUninitialized(
-      target_,
+  target_->resize(
       std::max(new_size,
                kMinimumSize + 0));  // "+ 0" works around GCC4 weirdness.
 

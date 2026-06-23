@@ -55,12 +55,12 @@ inline absl::string_view ProtobufNamespace(const Options& opts) {
 
 inline std::string DeprecatedAttribute(const Options&,
                                        const FieldDescriptor* d) {
-  return d->options().deprecated() ? "[[deprecated]] " : "";
+  return /*d->options().deprecated() ? "[[deprecated]] " : */"";
 }
 
 inline std::string DeprecatedAttribute(const Options&,
                                        const EnumValueDescriptor* d) {
-  return d->options().deprecated() ? "[[deprecated]] " : "";
+  return /*d->options().deprecated() ? "[[deprecated]] " : */"";
 }
 
 // Commonly-used separator comments.  Thick is a line of '=', thin is a line

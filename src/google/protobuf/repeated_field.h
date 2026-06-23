@@ -33,7 +33,6 @@
 #include <utility>
 
 #include "absl/base/attributes.h"
-#include "absl/base/dynamic_annotations.h"
 #include "absl/base/optimization.h"
 #include "absl/log/absl_check.h"
 #include "absl/meta/type_traits.h"
@@ -589,8 +588,8 @@ class ABSL_ATTRIBUTE_WARN_UNUSED RepeatedField final
     if (old_size != new_size) {
       [[maybe_unused]] const bool is_soo = this->is_soo();
       [[maybe_unused]] const Element* elem = unsafe_elements(is_soo);
-      ABSL_ANNOTATE_CONTIGUOUS_CONTAINER(elem, elem + Capacity(is_soo),
-                                         elem + old_size, elem + new_size);
+      // ABSL_ANNOTATE_CONTIGUOUS_CONTAINER(elem, elem + Capacity(is_soo),
+      //                                    elem + old_size, elem + new_size);
       if (new_size < old_size) {
         ABSL_ANNOTATE_MEMORY_IS_UNINITIALIZED(
             elem + new_size, (old_size - new_size) * sizeof(Element));

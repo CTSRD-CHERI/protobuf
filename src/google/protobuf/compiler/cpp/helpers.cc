@@ -119,6 +119,14 @@ MessageKnownNonNullaryMethodsSnakeCase() {
   return *methods;
 }
 
+// TODO(crbug.com/332939935): This is used to allow generating an AnyLite proto
+// compatible with /third_party/medialite instead of checking in compiled
+// protobufs that complicate rolling.
+// Upstream should be fixed so that we don't need to generate a separate
+// AnyLite, then this patch/change should be dropped.
+constexpr absl::string_view kAnyLiteMessageName = "AnyLite";
+constexpr absl::string_view kAnyLiteProtoFile = "google/protobuf/any_lite.proto";
+
 static const char* const kKeywordList[] = {
     // clang-format off
     "NULL",
@@ -1434,11 +1442,13 @@ bool IsRepeatedPtrField(const FieldDescriptor* field) {
 }
 
 bool IsAnyMessage(const FileDescriptor* descriptor) {
-  return descriptor->name() == kAnyProtoFile;
+  return descriptor->name() == kAnyProtoFile ||
+         descriptor->name() == kAnyLiteProtoFile;
 }
 
 bool IsAnyMessage(const Descriptor* descriptor) {
-  return descriptor->name() == kAnyMessageName &&
+  return (descriptor->name() == kAnyMessageName ||
+          descriptor->name() == kAnyLiteMessageName) &&
          IsAnyMessage(descriptor->file());
 }
 

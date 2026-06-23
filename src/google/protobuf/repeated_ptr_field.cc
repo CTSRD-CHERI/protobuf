@@ -132,6 +132,7 @@ memswap<ArenaOffsetHelper<RepeatedPtrFieldBase>::value>(
     char* PROTOBUF_RESTRICT, char* PROTOBUF_RESTRICT);
 
 template <>
+PROTOBUF_EXPORT_TEMPLATE_DEFINE
 void RepeatedPtrFieldBase::MergeFrom<std::string>(
     const RepeatedPtrFieldBase& from, Arena* arena) {
   Prefetch5LinesFrom1Line(&from);
@@ -208,6 +209,7 @@ void RepeatedPtrFieldBase::MergeFromConcreteMessage(
 }
 
 template <>
+PROTOBUF_EXPORT_TEMPLATE_DEFINE
 void RepeatedPtrFieldBase::MergeFrom<MessageLite>(
     const RepeatedPtrFieldBase& from, Arena* arena) {
   Prefetch5LinesFrom1Line(&from);

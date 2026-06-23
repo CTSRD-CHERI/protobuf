@@ -364,19 +364,31 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 #  define PROTOBUF_EXPORT __declspec(dllexport)
 #  define PROTOBUF_EXPORT_TEMPLATE_DECLARE
 #  define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllexport)
+#  define PROTOBUF_CONSTINIT_WITH_PTR PROTOBUF_CONSTINIT
+// See PROTOBUF_CONSTINIT_WITH_PTR below. This define is used by code inside the
+// protobuf library that needs to know whether it can assume a default instance,
+// which may be initialized inside the same binary or in another library, is
+// constinit.
+#  define PROTOBUF_DEFAULT_INSTANCES_MAY_NOT_BE_CONSTINIT
 # else
 #  define PROTOBUF_EXPORT __declspec(dllimport)
 #  define PROTOBUF_EXPORT_TEMPLATE_DECLARE
 #  define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllimport)
+// Pointers to dllimport extern variables on Windows require a static
+// initialization and cannot be constant-initialized. This macro disables
+// constinit in files where we cannot support it.
+#  define PROTOBUF_CONSTINIT_WITH_PTR
 # endif  // defined(LIBPROTOBUF_EXPORTS)
 #elif defined(PROTOBUF_USE_DLLS) && defined(LIBPROTOBUF_EXPORTS)
 # define PROTOBUF_EXPORT __attribute__((visibility("default")))
 # define PROTOBUF_EXPORT_TEMPLATE_DECLARE __attribute__((visibility("default")))
 # define PROTOBUF_EXPORT_TEMPLATE_DEFINE
+# define PROTOBUF_CONSTINIT_WITH_PTR PROTOBUF_CONSTINIT
 #else
 # define PROTOBUF_EXPORT
 # define PROTOBUF_EXPORT_TEMPLATE_DECLARE
 # define PROTOBUF_EXPORT_TEMPLATE_DEFINE
+# define PROTOBUF_CONSTINIT_WITH_PTR PROTOBUF_CONSTINIT
 #endif
 
 #ifdef PROTOC_EXPORT
@@ -604,17 +616,6 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
 #define PROTOBUF_FINAL final
 #endif
 
-// Determines the platforms where descriptor weak messages can be used.
-#ifdef PROTOBUF_DESCRIPTOR_WEAK_MESSAGES_ALLOWED
-#error PROTOBUF_DESCRIPTOR_WEAK_MESSAGES_ALLOWED was previously defined
-#endif
-#if defined(__GNUC__) && defined(__clang__) && !defined(__APPLE__) && \
-    !defined(_MSC_VER) && !defined(_WIN32) && !defined(__wasm__) &&   \
-    !defined(__EMSCRIPTEN__)
-#define PROTOBUF_DESCRIPTOR_WEAK_MESSAGES_ALLOWED
-#endif
-
-
 // TODO: Enable the feature by default and remove this flag.
 #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
 #error PROTOBUF_PREFETCH_PARSE_TABLE was previously defined
@@ -628,6 +629,16 @@ static_assert(PROTOBUF_ABSL_MIN(20230125, 3),
   asm("prefetcht0 " #offset "(%0)" : : "r"(base));
 #else
 #define PROTOBUF_PREFETCH_WITH_OFFSET(base, offset)
+#endif
+
+#if !defined(_MSVC_LANG)
+#if __has_attribute(no_sanitize)
+#define PROTOBUF_NO_SANITIZE(...) __attribute__((no_sanitize(__VA_ARGS__)))
+#else
+#define PROTOBUF_NO_SANITIZE(...)
+#endif  // __has_attribute(no_sanitize)
+#else
+#define PROTOBUF_NO_SANITIZE(...)
 #endif
 
 // ThreadSafeArenaz is turned off completely in opensource builds.

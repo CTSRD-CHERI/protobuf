@@ -39,7 +39,6 @@
 #include "absl/base/call_once.h"
 #include "absl/base/casts.h"
 #include "absl/base/const_init.h"
-#include "absl/base/dynamic_annotations.h"
 #include "absl/base/optimization.h"
 #include "absl/base/thread_annotations.h"
 #include "absl/cleanup/cleanup.h"
@@ -162,12 +161,12 @@ std::string ToJsonName(const absl::string_view input) {
 
 template <typename OptionsT>
 bool IsLegacyJsonFieldConflictEnabled(const OptionsT& options) {
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
   return options.deprecated_legacy_json_field_conflicts();
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 }
@@ -349,22 +348,16 @@ class FlatAllocation {
     return ends_.template Get<U>();
   }
 
-  // Avoid the reinterpret_cast if the array is empty.
-  // Clang's Control Flow Integrity does not like the cast pointing to memory
-  // that is not yet initialized to be of that type.
-  // (from -fsanitize=cfi-unrelated-cast)
   template <typename U>
+  PROTOBUF_NO_SANITIZE("cfi-unrelated-cast", "vptr")
   U* Begin() const {
-    int begin = BeginOffset<U>(), end = EndOffset<U>();
-    if (begin == end) return nullptr;
-    return reinterpret_cast<U*>(data() + begin);
+    return reinterpret_cast<U*>(data() + BeginOffset<U>());
   }
 
   template <typename U>
+  PROTOBUF_NO_SANITIZE("cfi-unrelated-cast", "vptr")
   U* End() const {
-    int begin = BeginOffset<U>(), end = EndOffset<U>();
-    if (begin == end) return nullptr;
-    return reinterpret_cast<U*>(data() + end);
+    return reinterpret_cast<U*>(data() + EndOffset<U>());
   }
 
   template <typename U>
@@ -3971,7 +3964,7 @@ void FieldDescriptor::DebugString(
 
   // Label is omitted for maps, oneof, and plain proto3 fields.
   if (is_map() || real_containing_oneof() ||
-      (!is_required() && !is_repeated() && !has_optional_keyword())) {
+      (!is_required() && !is_repeated() && !has_presence())) {
     label.clear();
   }
   // Label is omitted for optional and required fields under editions.

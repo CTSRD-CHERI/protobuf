@@ -69,20 +69,20 @@ namespace internal {
 // This fastpath inlines a single branch instead of having to make the
 // InitProtobufDefaults function call.
 // It also generates less inlined code than a function-scope static initializer.
-PROTOBUF_EXPORT extern std::atomic<bool> init_protobuf_defaults_state;
+PROTOBUF_EXPORT extern bool init_protobuf_defaults_state;
 PROTOBUF_EXPORT void InitProtobufDefaultsSlow();
 PROTOBUF_EXPORT inline void InitProtobufDefaults() {
-  if (ABSL_PREDICT_FALSE(
-          !init_protobuf_defaults_state.load(std::memory_order_acquire))) {
+  // This is not thread-safe, but is called within a static initializer. As long
+  // as there are no calls to this function from off the main thread, before
+  // main() starts, this is safe. After main() starts,
+  // init_protobuf_defaults_state will always be true.
+  if (ABSL_PREDICT_FALSE(!init_protobuf_defaults_state)) {
     InitProtobufDefaultsSlow();
   }
 }
 
 // This used by proto1
-PROTOBUF_EXPORT inline const std::string& GetEmptyString() {
-  InitProtobufDefaults();
-  return GetEmptyStringAlreadyInited();
-}
+PROTOBUF_EXPORT const ::std::string& GetEmptyString();
 
 // Default empty Cord object. Don't use directly. Instead, call
 // GetEmptyCordAlreadyInited() to get the reference.

@@ -33,7 +33,6 @@
 #include "absl/log/absl_check.h"
 #include "absl/log/absl_log.h"
 #include "absl/strings/cord.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/arena.h"
 #include "google/protobuf/io/zero_copy_stream.h"
@@ -256,7 +255,7 @@ bool CodedInputStream::ReadString(std::string* buffer, int size) {
   if (size < 0) return false;  // security: size is often user-supplied
 
   if (BufferSize() >= size) {
-    absl::strings_internal::STLStringResizeUninitialized(buffer, size);
+    buffer->resize(size);
     std::pair<char*, bool> z = as_string_data(buffer);
     if (z.second) {
       // Oddly enough, memcpy() requires its first two args to be non-NULL even

@@ -592,7 +592,7 @@ void FileGenerator::GenerateSourceDefaultInstance(int idx, io::Printer* p) {
             };
           };
 
-          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT$ dllexport_decl$
+          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT_WITH_PTR$ dllexport_decl$
               PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const $type$ $name$;
         )cc");
   }
@@ -620,7 +620,7 @@ void FileGenerator::GenerateSourceDefaultInstance(int idx, io::Printer* p) {
             };
           };
 
-          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT$ dllexport_decl$
+          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT_WITH_PTR$ dllexport_decl$
               PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 $type$ $name$;
         )cc");
   } else if (UsingImplicitWeakDescriptor(file_, options_)) {
@@ -646,7 +646,7 @@ void FileGenerator::GenerateSourceDefaultInstance(int idx, io::Printer* p) {
                 file_default_instances + $index$, sizeof($type$)};
           };
 
-          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT$ dllexport_decl$
+          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT_WITH_PTR$ dllexport_decl$
               PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 $type$ $name$
               __attribute__((section("$section$")));
         )cc");
@@ -666,7 +666,7 @@ void FileGenerator::GenerateSourceDefaultInstance(int idx, io::Printer* p) {
             };
           };
 
-          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT$ dllexport_decl$
+          PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT_WITH_PTR$ dllexport_decl$
               PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 $type$ $name$;
         )cc");
   }

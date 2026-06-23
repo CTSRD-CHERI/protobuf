@@ -415,7 +415,7 @@ struct PROTOBUF_EXPORT ClassData {
       void (*merge_to_from)(MessageLite& to, const MessageLite& from_msg),
       internal::MessageCreator message_creator,
       [[maybe_unused]] void (*destroy_message)(MessageLite& msg),  //
-      [[maybe_unused]] void (MessageLite::*clear)(),
+      [[maybe_unused]] void (*clear)(MessageLite*),
       [[maybe_unused]] size_t (*byte_size_long)(const MessageLite&),
       [[maybe_unused]] uint8_t* (*serialize)(const MessageLite& msg,
                                              uint8_t* ptr,

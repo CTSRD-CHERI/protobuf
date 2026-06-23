@@ -321,6 +321,7 @@ class PROTOBUF_EXPORT UntypedMapBase {
   UntypedMapBase& operator=(const UntypedMapBase&) = delete;
 
   template <typename T>
+  PROTOBUF_NO_SANITIZE("cfi-unrelated-cast", "vptr")
   T* GetKey(NodeBase* node) const {
     // Debug check that `T` matches what we expect from the type info.
     ABSL_DCHECK_EQ(static_cast<int>(StaticTypeKind<T>()),
@@ -333,6 +334,7 @@ class PROTOBUF_EXPORT UntypedMapBase {
   }
 
   template <typename T>
+  PROTOBUF_NO_SANITIZE("cfi-unrelated-cast", "vptr")
   T* GetValue(NodeBase* node) const {
     // Debug check that `T` matches what we expect from the type info.
     ABSL_DCHECK_EQ(static_cast<int>(StaticTypeKind<T>()),

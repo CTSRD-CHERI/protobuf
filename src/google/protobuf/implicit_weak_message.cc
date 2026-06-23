@@ -73,7 +73,11 @@ constexpr ClassDataLite<1> ImplicitWeakMessage::class_data_ = {
                                  sizeof(ImplicitWeakMessage),
                                  alignof(ImplicitWeakMessage)),
         &DestroyImpl,
+#if defined(PROTOBUF_CUSTOM_VTABLE)
         GetClearImpl<ImplicitWeakMessage>(),
+#else
+       nullptr,
+#endif  // PROTOBUF_CUSTOM_VTABLE
         &ByteSizeLongImpl,
         &_InternalSerializeImpl,
         PROTOBUF_FIELD_OFFSET(ImplicitWeakMessage, cached_size_),

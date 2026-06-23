@@ -391,7 +391,11 @@ struct DynamicMessageFactory::TypeInfo {
           &DynamicMessage::MergeImpl,
           internal::MessageCreator(),  // to be filled later
           &DynamicMessage::DestroyImpl,
+#if defined(PROTOBUF_CUSTOM_VTABLE)
           static_cast<void (MessageLite::*)()>(&DynamicMessage::ClearImpl),
+#else
+          nullptr,
+#endif  // PROTOBUF_CUSTOM_VTABLE
           DynamicMessage::ByteSizeLongImpl,
           DynamicMessage::_InternalSerializeImpl,
           PROTOBUF_FIELD_OFFSET(DynamicMessage, cached_byte_size_),

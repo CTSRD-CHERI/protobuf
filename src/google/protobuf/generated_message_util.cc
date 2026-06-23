@@ -87,27 +87,22 @@ static void InitWeakDefaults() {
 void InitWeakDefaults() {}
 #endif
 
-PROTOBUF_CONSTINIT std::atomic<bool> init_protobuf_defaults_state{false};
-static bool InitProtobufDefaultsImpl() {
-  if (auto* to_destroy = fixed_address_empty_string.Init()) {
-    OnShutdownDestroyString(to_destroy);
-  }
-  InitWeakDefaults();
-
-
-  init_protobuf_defaults_state.store(true, std::memory_order_release);
-  return true;
-}
-
+PROTOBUF_CONSTINIT bool init_protobuf_defaults_state{false};
 void InitProtobufDefaultsSlow() {
-  static bool is_inited = InitProtobufDefaultsImpl();
-  (void)is_inited;
+  fixed_address_empty_string.Init();
+  init_protobuf_defaults_state = true;
+  InitWeakDefaults();
 }
 // Force the initialization of the empty string.
 // Normally, registration would do it, but we don't have any guarantee that
 // there is any object with reflection.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 static std::true_type init_empty_string =
-    (InitProtobufDefaultsSlow(), std::true_type{});
+    (InitProtobufDefaults(), std::true_type{});
+
+const std::string& GetEmptyString() {
+  InitProtobufDefaults();
+  return GetEmptyStringAlreadyInited();
+}
 
 template <typename T>
 const T& Get(const void* ptr) {

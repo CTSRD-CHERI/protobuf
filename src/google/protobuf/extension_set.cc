@@ -164,7 +164,8 @@ void ExtensionSet::RegisterMessageExtension(
                      verify_func,
                      is_lazy);
   info.message_info = {prototype,
-#if defined(PROTOBUF_CONSTINIT_DEFAULT_INSTANCES)
+#if defined(PROTOBUF_CONSTINIT_DEFAULT_INSTANCES) && \
+    !defined(PROTOBUF_DEFAULT_INSTANCES_MAY_NOT_BE_CONSTINIT)
                        prototype->GetTcParseTable()
 #else
                        nullptr

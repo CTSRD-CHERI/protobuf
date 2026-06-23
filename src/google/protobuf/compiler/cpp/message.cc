@@ -2286,7 +2286,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* p) {
           static constexpr int kIndexInFileMessages = $index_in_file_messages$;
           $decl_any_methods$;
           friend void swap($classname$& a, $classname$& b) { a.Swap(&b); }
-          inline void Swap($classname$* $nonnull$ other) {
+          PROTOBUF_NOINLINE void Swap($classname$* $nonnull$ other) {
             if (other == this) return;
             if ($pbi$::CanUseInternalSwap(GetArena(), other->GetArena())) {
               InternalSwap(other);
@@ -2459,30 +2459,34 @@ void MessageGenerator::GenerateClassMethods(io::Printer* p) {
     return;
   }
   if (IsAnyMessage(descriptor_)) {
-    p->Emit({{"any_field_descriptor",
-              [&] {
-                if (!HasDescriptorMethods(descriptor_->file(), options_)) {
-                  return;
+    // TODO(crbug.com/332939935): Remove this workaround when the AnyLite patch
+    // can go away.
+    if (descriptor_->name() != "AnyLite") {
+      p->Emit({{"any_field_descriptor",
+                [&] {
+                  if (!HasDescriptorMethods(descriptor_->file(), options_)) {
+                    return;
+                  }
+                  p->Emit(
+                      R"cc(
+                        bool $classname$::GetAnyFieldDescriptors(
+                            const $pb$::Message& message,
+                            const $pb$::FieldDescriptor** type_url_field,
+                            const $pb$::FieldDescriptor** value_field) {
+                          return ::_pbi::GetAnyFieldDescriptors(message, type_url_field, value_field);
+                        }
+                      )cc");
+                }}},
+              R"cc(
+                $any_field_descriptor$;
+                bool $classname$::ParseAnyTypeUrl(
+                    //~
+                    ::absl::string_view type_url,
+                    std::string* $nonnull$ full_type_name) {
+                  return ::_pbi::ParseAnyTypeUrl(type_url, full_type_name);
                 }
-                p->Emit(
-                    R"cc(
-                      bool $classname$::GetAnyFieldDescriptors(
-                          const $pb$::Message& message,
-                          const $pb$::FieldDescriptor** type_url_field,
-                          const $pb$::FieldDescriptor** value_field) {
-                        return ::_pbi::GetAnyFieldDescriptors(message, type_url_field, value_field);
-                      }
-                    )cc");
-              }}},
-            R"cc(
-              $any_field_descriptor$;
-              bool $classname$::ParseAnyTypeUrl(
-                  //~
-                  ::absl::string_view type_url,
-                  std::string* $nonnull$ full_type_name) {
-                return ::_pbi::ParseAnyTypeUrl(type_url, full_type_name);
-              }
-            )cc");
+              )cc");
+    }
   }
   p->Emit(
       {{"has_bit",
@@ -4107,7 +4111,7 @@ void MessageGenerator::GenerateClassData(io::Printer* p) {
                 constexpr auto arena_bits = $pbi$::EncodePlacementArenaOffsets({
                     $arena_offsets$,
                 });
-                if (arena_bits.has_value()) {
+                if constexpr (arena_bits.has_value()) {
                   return $pbi$::MessageCreator::$copy_type$(
                       sizeof($classname$), alignof($classname$), *arena_bits);
                 } else {
@@ -4239,7 +4243,7 @@ void MessageGenerator::GenerateClassData(io::Printer* p) {
             };
           }
 
-          PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+          PROTOBUF_CONSTINIT_WITH_PTR PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
               $pbi$::ClassDataFull $classname$_class_data_ =
                   $classname$::InternalGenerateClassData_();
 

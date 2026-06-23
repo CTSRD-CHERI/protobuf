@@ -15,7 +15,6 @@
 
 #include "absl/base/optimization.h"
 #include "absl/log/absl_check.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/arena.h"
 #include "google/protobuf/arena_align.h"
